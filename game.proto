@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+// The greeting service definition.
+service RoomController {
+  rpc RegisterPlayer(RegisterPlayerRequest) returns (RegisterPlayerResponse);
+  rpc ChooseCombination(ChooseCombinationRequest) returns (ChooseCombinationResponse);
+  rpc RemovePlayer(RemovePlayerRequest) returns (RemovePlayerResponse);
+}
+
+service WebServer {
+    rpc SendWinners (SendWinnersRequest) returns (SendWinnersResponse);
+    rpc SendScores (SendScoresRequest) returns (SendScoresResponse);
+    // Когда RoomController что-то сообщает Flask'у (webserver'у)
+}
+
+message Player {
+   string name = 1;
+}
+
+message RoomConfig {
+   int32 capacity = 1;
+   int32 max_score = 2;
+   bool only_computer = 3;
+}
+
+message RegisterPlayerRequest {
+    Player player = 1;
+    RoomConfig config = 2;
+}
+
+enum Status {
+    OK = 0;
+    ERROR = 1;
+}
+
+message RegisterPlayerResponse {
+    Status status = 1;
+    string error_message = 2;
+}
+
+message ChooseCombinationRequest {
+    enum Choice {
+        ROCK = 0;
+        PAPER = 1;
+        SCISSORS = 2;
+    }
+    
+    Player player = 1; // Каждый игрок отправляет за себя
+    Choice choice = 2;
+}
+
+message ChooseCombinationResponse {
+    Status status = 1;
+    string error_message = 2;
+}
+
+
+// Flask <- winner (Vasya)(Igor) ['Vasya', 'Igor']
+// смотрит, где находятся игроки
+
+message SendWinnersRequest {
+    repeated Player winners = 1; // = [] кто победил?
+    repeated Player receivers = 2; // кому сообщить об этом?
+    // RoomController отправляет победителей
+}
+
+message SendWinnersResponse {
+    // от Flask'а
+}
+
+message RemovePlayerRequest {
+    Player player = 1;
+}
+
+message RemovePlayerResponse {
+    
+}
+
+
+// 1. Сгенерировать из этого файла Python код
+// 2. Создать gRPC сервер для Flask
+// 3. Создать gRPC сервер для RoomController
+// 4. Соединить их
+// 5. Реализовать возможность регистрации игроков (функция RegisterPlayer)
+// 6*. Реализовать игру (выбор комбинаций и отправка результатов игрокам) - Васе <- Ты проиграл
+// Игорю и Артему <- Ты победил
+
+// см.калькулятор
